@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Hash;
 
 class SessionsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
     public function create()
     {
         return view('sessions.create');
@@ -33,7 +40,8 @@ class SessionsController extends Controller
 
         Auth::login($user);
         session()->flash('success', '欢迎回来！');
-        return redirect()->route('users.show', ['user' => Auth::user()]);
+        $fallback = route('users.show', ['user' => Auth::user()]);
+        return redirect()->intended($fallback);
     }
 
     public function destroy()
