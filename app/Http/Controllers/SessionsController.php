@@ -32,7 +32,6 @@ class SessionsController extends Controller
         }
 
         Auth::login($user);
-
         session()->flash('success', '欢迎回来！');
         return redirect()->route('users.show', ['user' => Auth::user()]);
     }
