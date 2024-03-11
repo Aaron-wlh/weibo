@@ -14,6 +14,6 @@ class StatusesTableSeeder extends Seeder
      */
     public function run()
     {
-        Status::factory()->count(100)->create();
+        Status::factory()->count(2)->create();
     }
 }
