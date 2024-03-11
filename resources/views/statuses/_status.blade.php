@@ -3,7 +3,7 @@
 {{--        <img src="{{ $user->gravatar() }}" alt="{{ $user->name }}" class="mr-3 gravatar"/>--}}
 {{--    </a>--}}
     <div class="media-body">
-        <h5 class="mt-0 mb-1">{{ $user->name }} <small> / {{ date('Y-m-d H:i:s', $user->create_time) }}</small></h5>
+        <h5 class="mt-0 mb-1">{{ $user->name }} <small> / {{ $user->create_time }}</small></h5>
         {{ $status->content }}
     </div>
 </li>
