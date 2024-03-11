@@ -51,6 +51,7 @@ class UsersController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'create_time' => date('Y-m-d H:i:s'),
         ]);
         $this->sendEmailConfirmationTo($user);
         session()->flash('success', '验证邮件已发送到你的注册邮箱上，请注意查收。');
