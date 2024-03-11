@@ -28,7 +28,9 @@ class SessionsController extends Controller
             'password' => 'required'
         ]);
 
-        $user = User::query()->where('email', $request->input('email'))->first();
+        $user = User::query()
+            ->where(['email' => $request->input('email'), 'is_deleted' => 0])
+            ->first();
         if (!$user) {
             session()->flash('danger', '该邮箱不存在');
             return redirect()->back()->withInput();

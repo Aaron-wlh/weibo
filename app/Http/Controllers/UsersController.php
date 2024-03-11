@@ -21,7 +21,7 @@ class UsersController extends Controller
 
     public function index()
     {
-        $users = User::query()->paginate(10);
+        $users = User::query()->where('is_deleted', 0)->paginate(10);
         return view('users.index', compact('users'));
     }
 
@@ -77,5 +77,13 @@ class UsersController extends Controller
         session()->flash('success', '个人资料更新成功！');
 
         return redirect()->route('users.show', $user);
+    }
+
+    public function destroy(User $user)
+    {
+        $this->authorize('destroy', $user);
+        $user->update(['is_deleted' => 1]);
+        session()->flash('success', '成功删除用户！');
+        return back();
     }
 }
