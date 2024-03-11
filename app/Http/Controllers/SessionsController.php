@@ -35,7 +35,8 @@ class SessionsController extends Controller
             session()->flash('danger', '该邮箱不存在');
             return redirect()->back()->withInput();
         }
-        if (Hash::check($user->password, $request->input('password'))) {
+
+        if (!Hash::check($request->input('password'), $user->password)) {
             session()->flash('danger', '您的邮箱和密码不匹配');
             return redirect()->back()->withInput();
         }

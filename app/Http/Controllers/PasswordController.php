@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Hash;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use DB;
-use Mail;
+
+
 use Carbon\Carbon;
 
 class PasswordController extends Controller
@@ -24,7 +27,10 @@ class PasswordController extends Controller
         $email = $request->email;
 
         // 2. 获取对应用户
-        $user = User::where("email", $email)->first();
+        $user = User::where([
+            "email" => $email,
+            "is_deleted" => 0
+        ])->first();
 
         // 3. 如果不存在
         if (is_null($user)) {
@@ -48,6 +54,70 @@ class PasswordController extends Controller
         });
 
         session()->flash('success', '重置邮件发送成功，请查收');
+        return redirect()->back();
+    }
+
+    public function showResetForm(Request $request)
+    {
+        var_dump(Hash::check('d566e06c62d0e7d304c951506f6eb525da63197b9c774f8b7fa98c112538743d','$2y$10$uv3r2JOadYgfpNTysWblqeFBzlSPO5fmXnmjuggcqTYq7yCHUPNvS'));
+
+        $secret = bcrypt(123456);
+        var_dump(Hash::check(123456, $secret));
+
+        die;
+        $token = $request->route()->parameter('token');
+        return view('passwords.reset', compact('token'));
+    }
+
+    public function reset(Request $request)
+    {
+        // 1. 验证数据是否合规
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:6',
+        ]);
+        $email = $request->email;
+        $token = $request->token;
+        // 找回密码链接的有效时间
+        $expires = 60 * 10;
+
+        // 2. 获取对应用户
+        $user = User::where(["email" => $email, "is_deleted" => 0])->first();
+
+        // 3. 如果不存在
+        if (is_null($user)) {
+            session()->flash('danger', '邮箱未注册');
+            return redirect()->back()->withInput();
+        }
+
+        // 4. 读取重置的记录
+        $record = (array) DB::table('password_resets')->where('email', $email)->first();
+
+        // 5. 记录存在
+        if ($record) {
+            // 5.1. 检查是否过期
+            if (Carbon::parse($record['created_at'])->addSeconds($expires)->isPast()) {
+                session()->flash('danger', '链接已过期，请重新尝试');
+                return redirect()->back();
+            }
+
+            // 5.2. 检查是否正确
+            if ( ! Hash::check($token, $record['token'])) {
+                session()->flash('danger', '令牌错误');
+                return redirect()->back();
+            }
+
+            // 5.3. 一切正常，更新用户密码
+            $user->update(['password' => bcrypt($request->password)]);
+
+            // 5.4. 提示用户更新成功
+            session()->flash('success', '密码重置成功，请使用新密码登录');
+            return redirect()->route('login');
+        }
+
+        // 6. 记录不存在
+        session()->flash('danger', '未找到重置记录');
         return redirect()->back();
     }
 }
