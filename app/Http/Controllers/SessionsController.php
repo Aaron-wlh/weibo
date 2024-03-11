@@ -35,9 +35,15 @@ class SessionsController extends Controller
             session()->flash('danger', '该邮箱不存在');
             return redirect()->back()->withInput();
         }
-        if (Hash::check($user->password, $request->input('password'))) {
+
+        if (!Hash::check($request->input('password'), $user->password)) {
             session()->flash('danger', '您的邮箱和密码不匹配');
             return redirect()->back()->withInput();
+        }
+
+        if (!$user->activated) {
+            session()->flash('warning', '你的账号未激活，请检查邮箱中的注册邮件进行激活。');
+            return redirect('/');
         }
 
         Auth::login($user);

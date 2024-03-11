@@ -22,3 +22,15 @@ function get_db_config()
         ];
     }
 }
+
+// 快捷方法: 查看数据
+function d(...$data)
+{
+    foreach ($data as $item) {
+        $result =  print_r($item, true);
+
+        $style = 'border:1px solid #ccc;border-radius: 5px;';
+        $style .= 'background: #efefef; padding:8px;';
+        printf('<pre style="%s">%s</pre>', $style, $result);
+    }
+}
